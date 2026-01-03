@@ -51,11 +51,14 @@ function forwardRequest(clientReq, clientRes, origin) {
       const body = Buffer.concat(chunks);
 
       // Store in cache
-      cache.set(cacheKey, {
+      cache.set(
+        cacheKey, 
+        {
         statusCode: proxyRes.statusCode,
         headers: proxyRes.headers,
         body,
-      });
+        }
+    );
 
       clientRes.writeHead(proxyRes.statusCode, {
         ...proxyRes.headers,
