@@ -42,7 +42,7 @@ function forwardWithoutCache(clientReq,clientRes,origin){
 }
 
 
-function forwardRequest(clientReq, clientRes, origin) {
+async function forwardRequest(clientReq, clientRes, origin) {
   
   // 🚫 Do not cache unsafe methods
   if (!isCacheableMethod(clientReq.method) || hasAuthHeaders(clientReq)) {
@@ -51,7 +51,7 @@ function forwardRequest(clientReq, clientRes, origin) {
   }
 
   const cacheKey = getCacheKey(clientReq);
-  const cachedResponse = cache.get(cacheKey);
+  const cachedResponse = await cache.get(cacheKey);
 
   // 🟢 CACHE HIT
   if (cachedResponse) {
@@ -60,8 +60,8 @@ function forwardRequest(clientReq, clientRes, origin) {
       "X-Cache": "HIT",
     });
     console.log(`We got the cache, it is cache hit!!`)
-    clientRes.end(cachedResponse.body);
-    return;
+    
+    return clientRes.end(Buffer.from(cachedResponse.body),"base64");
   }
 
   // 🔴 CACHE MISS
@@ -89,7 +89,7 @@ function forwardRequest(clientReq, clientRes, origin) {
       chunks.push(chunk);
     });
 
-    proxyRes.on("end", () => {
+    proxyRes.on("end", async() => {
       const body = Buffer.concat(chunks);
 
       const cacheControl = proxyRes.headers["cache-control"];
@@ -103,10 +103,10 @@ function forwardRequest(clientReq, clientRes, origin) {
       // Store in cache
       if (shouldCache) {
         console.log(`We should respect the cache controller`)
-        cache.set(cacheKey, {
+        await cache.set(cacheKey, {
           statusCode: proxyRes.statusCode,
           headers: proxyRes.headers,
-          body,
+          body:body.toString("base64"),
         });
       }
 

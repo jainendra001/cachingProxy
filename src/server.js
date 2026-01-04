@@ -1,7 +1,9 @@
 const http=require("http")
 const {forwardRequest}=require("./proxy")
+const {connectRedis}=require('./redisclient')
 
-function startServer(port,origin){
+async function startServer(port,origin){
+  await connectRedis();
   const server=http.createServer((req,res)=>{
     forwardRequest(req,res,origin);
   });

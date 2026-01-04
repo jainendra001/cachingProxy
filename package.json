@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/jainendra001/cachingProxy#readme",
   "dependencies": {
-    "commander": "^14.0.2"
+    "commander": "^14.0.2",
+    "redis": "^5.10.0",
+    "redis-cli": "^2.1.2"
   }
 }
